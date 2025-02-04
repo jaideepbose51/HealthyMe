@@ -7,6 +7,9 @@ import connectDB from "./config/db.js";
 // import adminRouter from './routes/adminRoute.js'  
 // import doctorRouter from './routes/doctorRoute.js'
 import userRouter from './routes/userRoute.js'
+import chatRouter from './routes/chatRoute.js';
+
+
 
 const app = express();
 const port = process.env.PORT;
@@ -14,7 +17,9 @@ const port = process.env.PORT;
 app.use(express.json());
 app.use(cors());
 
+
 app.use("/api/user",userRouter);
+app.use("/api/chat",chatRouter);
 
 app.listen(port, () => {
   connectDB();
