@@ -1,5 +1,5 @@
-import { createContext, useEffect, useState } from "react";
-import axios from 'axios';
+import { createContext, useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -8,17 +8,20 @@ export const AppContext = createContext();
 const AppContextProvider = ({ children }) => {
     const navigate = useNavigate();
     const currencySymbol = "$";
-    const backendUrl = 'http://localhost:3000';
+    const backendUrl = "http://localhost:3000"; // Fixed protocol
 
     const storedToken = localStorage.getItem("token") || "";
     const [token, setToken] = useState(storedToken);
     const [doctors, setDoctors] = useState([]);
-    const [userData, setUserData] = useState(false);
+    const [userData, setUserData] = useState(null); // Changed from false to null
 
-    const axiosInstance = axios.create({
-        baseURL: backendUrl,
-        headers: { token }
-    });
+    // Recreate axios instance when the token changes
+    const axiosInstance = useMemo(() => {
+        return axios.create({
+            baseURL: backendUrl,
+            headers: { Authorization: `Bearer ${token}` }, // Use proper auth header
+        });
+    }, [token]);
 
     const getAllDoctors = async () => {
         try {
@@ -31,6 +34,8 @@ const AppContextProvider = ({ children }) => {
     };
 
     const loadUserProfileData = async () => {
+        if (!token) return; // Prevent unnecessary calls
+
         try {
             const { data } = await axiosInstance.get("/api/user/get-profile");
             if (data.success) {
@@ -49,14 +54,20 @@ const AppContextProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        if (token) {
-            loadUserProfileData();
-        } else {
-            setUserData(false);
-        }
-    }, [token]);
+        loadUserProfileData();
+    }, [token]); // Calls when token changes
 
-    const value = { doctors, currencySymbol, token, setToken, backendUrl, userData, setUserData, loadUserProfileData, getAllDoctors };
+    const value = {
+        doctors,
+        currencySymbol,
+        token,
+        setToken,
+        backendUrl,
+        userData,
+        setUserData,
+        loadUserProfileData,
+        getAllDoctors,
+    };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

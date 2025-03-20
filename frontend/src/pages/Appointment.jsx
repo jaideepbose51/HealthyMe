@@ -90,7 +90,7 @@ const Appointment = () => {
     }
     if (!docInfo.available) {
       toast.error("Doctor not available")
-      return
+      return;
     }
     try {
       const date = docSlots[slotIndex][0].datetime
