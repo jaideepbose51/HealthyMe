@@ -27,7 +27,7 @@ const OpenAIAssistant = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/api/chat/ask", {
+      const response = await fetch("https://minnor-project.onrender.com/api/chat/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),

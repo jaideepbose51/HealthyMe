@@ -8,18 +8,18 @@ export const AppContext = createContext();
 const AppContextProvider = ({ children }) => {
     const navigate = useNavigate();
     const currencySymbol = "$";
-    const backendUrl = "http://localhost:3000"; // Fixed protocol
+    const backendUrl = "https://minnor-project.onrender.com"; // Updated backend URL
 
     const storedToken = localStorage.getItem("token") || "";
     const [token, setToken] = useState(storedToken);
     const [doctors, setDoctors] = useState([]);
-    const [userData, setUserData] = useState(null); // Changed from false to null
+    const [userData, setUserData] = useState(null);
 
     // Recreate axios instance when the token changes
     const axiosInstance = useMemo(() => {
         return axios.create({
             baseURL: backendUrl,
-            headers: { Authorization: `Bearer ${token}` }, // Use proper auth header
+            headers: { Authorization: token ? `Bearer ${token}` : "" }, // Ensuring no empty "Bearer "
         });
     }, [token]);
 
@@ -34,7 +34,7 @@ const AppContextProvider = ({ children }) => {
     };
 
     const loadUserProfileData = async () => {
-        if (!token) return; // Prevent unnecessary calls
+        if (!token) return;
 
         try {
             const { data } = await axiosInstance.get("/api/user/get-profile");
@@ -55,7 +55,7 @@ const AppContextProvider = ({ children }) => {
 
     useEffect(() => {
         loadUserProfileData();
-    }, [token]); // Calls when token changes
+    }, [token]);
 
     const value = {
         doctors,

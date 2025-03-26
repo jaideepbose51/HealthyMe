@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export const AdminContext = createContext();
 
 const AdminContextProvider = ({ children }) => {
-    const backendUrl = "http://localhost:3000"
+    const backendUrl = "https://minnor-project.onrender.com"
     const storedAToken = localStorage.getItem("AToken") || "";
     
     const [aToken, setAToken] = useState(storedAToken);

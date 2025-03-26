@@ -6,7 +6,7 @@ export const DoctorContext = createContext()
 
 const DoctorContextProvider = (props) => {
 
-    const backendUrl = "http://localhost:3000"
+    const backendUrl = "https://minnor-project.onrender.com"
     const [dToken, setDToken] = useState(localStorage.getItem('DToken') ? localStorage.getItem('DToken') : '');
     const [appointments, setAppointments] = useState([])
     const [dashData,setDashData] = useState([]);
