@@ -14,7 +14,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
+    <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400 relative">
       <img
         onClick={() => {
           navigate("/");
@@ -48,8 +48,6 @@ const Navbar = () => {
           <li className="py-1">MEDICINE RECOMMENDATION SYSTEM</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
-
-        <hr />
       </ul>
       <div className="flex items-center gap-4">
         {token ? (
@@ -99,20 +97,29 @@ const Navbar = () => {
           onClick={() => {
             setShowMenu(true);
           }}
-          className="w-6 md:hidden"
+          className="w-6 md:hidden cursor-pointer"
           src={assets.menu_icon}
           alt=""
         />
-        {/**mobile nav */}
+        
+        {/** Mobile menu overlay */}
+        {showMenu && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+            onClick={() => setShowMenu(false)}
+          ></div>
+        )}
+        
+        {/** Mobile menu */}
         <div
-          className={`${
-            showMenu ? "fixed w-full" : "h-0 w-0"
-          } md:hidden right-0 bottom-0 top-0 z-20 overflow-hidden bg-white transition-all`}
+          className={`fixed top-0 right-0 h-full w-64 bg-white z-30 shadow-lg transform transition-transform duration-300 ease-in-out md:hidden ${
+            showMenu ? "translate-x-0" : "translate-x-full"
+          }`}
         >
-          <div className="flex items-center justify-between px-5 py-6">
+          <div className="flex items-center justify-between px-5 py-6 border-b">
             <img className="w-36" src={assets.logo} alt="" />
             <img
-              className="w-7"
+              className="w-7 cursor-pointer"
               onClick={() => {
                 setShowMenu(false);
               }}
@@ -120,97 +127,80 @@ const Navbar = () => {
               alt=""
             />
           </div>
-          <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
+          <ul className="flex flex-col gap-1 mt-5 px-4">
             <NavLink to={"/"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
                 HOME
-              </p>
+              </li>
             </NavLink>
             <NavLink to={"/doctors"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
                 DOCTORS
-              </p>
+              </li>
             </NavLink>
             <NavLink to={"/about"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
                 ABOUT
-              </p>
+              </li>
             </NavLink>
             <NavLink to={"/contact"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
                 CONTACT
-              </p>
+              </li>
             </NavLink>
-            <NavLink to={"/curanet"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+            <NavLink to={"/assistant"}>
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
-                CURANET
-              </p>
+                ASSISTANT
+              </li>
             </NavLink>
-            <NavLink to={"/healtheducation"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+            <NavLink to={"https://med-recomendation-system.onrender.com/"}>
+              <li
+                className="px-4 py-3 rounded hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
                 }}
               >
-                DOCS
-              </p>
+                MEDICINE RECOMMENDATION
+              </li>
             </NavLink>
-            <NavLink to={"/ehr"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
+            {!token && (
+              <li
+                className="px-4 py-3 mt-4"
                 onClick={() => {
                   setShowMenu(false);
+                  navigate("/login");
                 }}
               >
-                EHR
-              </p>
-            </NavLink>
-            <NavLink to={"/healthaccess"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
-                onClick={() => {
-                  setShowMenu(false);
-                }}
-              >
-                CARELINK
-              </p>
-            </NavLink>
-            <NavLink to={"/sponsors"}>
-              <p
-                className={`px-4 py-2 rounded inline-block `}
-                onClick={() => {
-                  setShowMenu(false);
-                }}
-              >
-                SPONSORS
-              </p>
-            </NavLink>
+                <button className="bg-primary text-white w-full py-2 rounded-full">
+                  Create account
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>
