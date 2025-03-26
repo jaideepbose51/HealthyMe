@@ -1,60 +1,60 @@
 import React, { useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GeminiAssistant = () => {
-  const [patientName, setPatientName] = useState("Jaideep Bose");
-  const [age, setAge] = useState(21);
-  const [symptoms, setSymptoms] = useState("Heart Pain, Keen pain, main point tight");
-  const [medicalReport, setMedicalReport] = useState(null);
+const OpenAIAssistant = () => {
+  const [patientName, setPatientName] = useState("");
+  const [age, setAge] = useState("");
+  const [symptoms, setSymptoms] = useState("");
   const [stepCount, setStepCount] = useState("");
   const [heartRate, setHeartRate] = useState("");
   const [sleepHours, setSleepHours] = useState("");
   const [suggestions, setSuggestions] = useState("");
-
-  const genAI = new GoogleGenerativeAI(
-    "AIzaSyBMHffY3LU_bNvkzXP8ULaJvL6A-oTtCDg"
-  );
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuggestions("");
+
+    const requestData = {
+      patientName,
+      age,
+      symptoms,
+      stepCount: stepCount || null,
+      heartRate: heartRate || null,
+      sleepHours: sleepHours || null,
+    };
 
     try {
-      const prompt = `
-        Patient Information:
-        - Name: ${patientName}
-        - Age: ${age}
-        - Symptoms: ${symptoms}
+      const response = await fetch("http://localhost:3000/api/chat/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData),
+      });
 
-        Health Data:
-        - Step Count: ${stepCount || "Not provided"}
-        - Heart Rate: ${heartRate || "Not provided"}
-        - Sleep Hours: ${sleepHours || "Not provided"}
-
-        Please give what could be medicine that are given by the medical reports.
-      `;
-
-      const result = await model.generateContent(prompt);
-      setSuggestions(result.response.text());
+      const data = await response.json();
+      if (response.ok) {
+        setSuggestions(data.answer);
+      } else {
+        setError("Failed to fetch suggestions. Please try again.");
+      }
     } catch (error) {
-      console.error("Error generating suggestions:", error);
-      setSuggestions("Error generating suggestions. Please try again later.");
+      console.error("Error:", error);
+      setError("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <div className="text-center text-2xl pt-10 text-gray-500">
-        <p>
-          VIRTUAL <span className="text-gray-700 font-semibold">NURSING</span>
-        </p>
-      </div>
+    <div className="flex flex-col items-center p-8">
+      <h2 className="text-2xl font-bold text-gray-700">Virtual Nursing Assistant</h2>
       <form
         onSubmit={handleSubmit}
-        className="my-10 flex flex-col gap-6 mb-28 text-sm mx-auto max-w-lg"
+        className="w-full max-w-md mt-6 flex flex-col gap-4"
       >
-        {/* Patient Name */}
-        <label className="text-gray-600 font-semibold">Patient Name:</label>
+        <label className="text-gray-600 font-medium">Patient Name:</label>
         <input
           type="text"
           value={patientName}
@@ -63,8 +63,7 @@ const GeminiAssistant = () => {
           required
         />
 
-        {/* Age */}
-        <label className="text-gray-600 font-semibold">Age:</label>
+        <label className="text-gray-600 font-medium">Age:</label>
         <input
           type="number"
           value={age}
@@ -73,78 +72,59 @@ const GeminiAssistant = () => {
           required
         />
 
-        {/* Symptoms */}
-        <label className="text-gray-600 font-semibold">Symptoms:</label>
+        <label className="text-gray-600 font-medium">Symptoms:</label>
         <textarea
           value={symptoms}
           onChange={(e) => setSymptoms(e.target.value)}
           className="border p-2 rounded"
           rows="4"
-          placeholder="Describe the symptoms here..."
           required
         />
 
-        {/* Health Metrics */}
-        <label className="text-gray-600 font-semibold">Daily Step Count:</label>
+        <label className="text-gray-600 font-medium">Daily Step Count:</label>
         <input
           type="number"
           value={stepCount}
           onChange={(e) => setStepCount(e.target.value)}
           className="border p-2 rounded"
-          placeholder="Enter your daily steps count"
         />
 
-        <label className="text-gray-600 font-semibold">
-          Average Heart Rate (bpm):
-        </label>
+        <label className="text-gray-600 font-medium">Heart Rate (bpm):</label>
         <input
           type="number"
           value={heartRate}
           onChange={(e) => setHeartRate(e.target.value)}
           className="border p-2 rounded"
-          placeholder="Enter your average heart rate"
         />
 
-        <label className="text-gray-600 font-semibold">
-          Sleep Duration (hours):
-        </label>
+        <label className="text-gray-600 font-medium">Sleep Duration (hours):</label>
         <input
           type="number"
           value={sleepHours}
           onChange={(e) => setSleepHours(e.target.value)}
           className="border p-2 rounded"
-          placeholder="Enter your sleep duration"
-        />
-
-        {/* Upload Medical Report */}
-        <label className="text-gray-600 font-semibold">
-          Upload Medical Report:
-        </label>
-        <input
-          type="file"
-          onChange={(e) => setMedicalReport(e.target.files[0])}
-          className="border p-2 rounded"
         />
 
         <button
           type="submit"
-          className="border border-black px-8 py-4 mt-4 text-sm hover:bg-black hover:text-white transition-all duration-500"
+          className="mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          Get Suggestions
+          {loading ? "Fetching Suggestions..." : "Get Suggestions"}
         </button>
       </form>
 
-      {/* Display AI Suggestions */}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+
       {suggestions && (
-        <div className="my-10 text-gray-600">
-          <h2 className="font-semibold text-lg">
+        <div className="mt-6 p-4 bg-gray-100 border rounded">
+          <h3 className="font-semibold text-lg text-gray-700">
             Suggested Prescription & Cure:
-          </h2>
-          <p>{suggestions}</p>
+          </h3>
+          <pre className="text-gray-600 whitespace-pre-wrap">{suggestions}</pre>
         </div>
       )}
     </div>
   );
 };
 
-export default GeminiAssistant;
+export default OpenAIAssistant;

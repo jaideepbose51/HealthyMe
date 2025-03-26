@@ -11,18 +11,32 @@ const openai = new OpenAI({
 
 // Initialize session middleware
 const sessionMiddleware = session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS
 });
 
 const getChatResponse = async (req, res) => {
-  const { query } = req.body;
+  const { patientName, age, symptoms, stepCount, heartRate, sleepHours } = req.body;
 
-  if (!query) {
-    return res.status(400).json({ error: "Query is required" });
+  if (!patientName || !age || !symptoms) {
+    return res.status(400).json({ error: "Patient name, age, and symptoms are required" });
   }
+
+  const query = `
+    Patient Information:
+    - Name: ${patientName}
+    - Age: ${age}
+    - Symptoms: ${symptoms}
+
+    Health Data:
+    - Step Count: ${stepCount || "Not provided"}
+    - Heart Rate: ${heartRate || "Not provided"}
+    - Sleep Hours: ${sleepHours || "Not provided"}
+
+    Please provide possible prescriptions and health advice based on the given data. Do not give any bold letters anywhere not even in the subtopics, do capitalise them anyway. 
+  `;
 
   // Initialize session messages if not present
   if (!req.session.messages) {
@@ -30,7 +44,7 @@ const getChatResponse = async (req, res) => {
       {
         role: "system",
         content:
-          "You are a health assistant bot. Provide detailed and accurate answers to health-related questions.",
+          "You are a health assistant bot. Provide detailed and accurate answers to health-related queries, including prescription recommendations based on symptoms and health metrics.",
       }
     ];
   }

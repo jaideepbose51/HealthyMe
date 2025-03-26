@@ -38,6 +38,7 @@ function App() {
         <Route path="/my-profile" element={<MyProfile />}></Route>
         <Route path="/my-appointment" element={<MyAppointments />}></Route>
         <Route path="/appointment/:docId" element={<Appointment />}></Route>
+        <Route path="/assistant" element={<Assistant/>}></Route>
       </Routes>
       <Footer />
     </div>
